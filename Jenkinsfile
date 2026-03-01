@@ -32,10 +32,10 @@ pipeline {
     // Defaults — override via Jenkins → Manage Jenkins → System → Global properties if needed
     BACKEND_LOG_GROUP           = "${env.BACKEND_LOG_GROUP  ?: '/ecs/voting-app/backend'}"
     FRONTEND_LOG_GROUP          = "${env.FRONTEND_LOG_GROUP ?: '/ecs/voting-app/frontend'}"
-    ECS_TASK_CPU                = "${env.ECS_TASK_CPU                ?: '512'}"
-    ECS_TASK_MEMORY             = "${env.ECS_TASK_MEMORY             ?: '1024'}"
-    ECR_LIFECYCLE_MAX_IMAGES    = "${env.ECR_LIFECYCLE_MAX_IMAGES    ?: '30'}"
-    ECS_TASKDEF_KEEP_REVISIONS  = "${env.ECS_TASKDEF_KEEP_REVISIONS  ?: '15'}"
+    ECS_TASK_CPU                = "${(env.ECS_TASK_CPU               ?: '512').trim()}"
+    ECS_TASK_MEMORY             = "${(env.ECS_TASK_MEMORY            ?: '1024').trim()}"
+    ECR_LIFECYCLE_MAX_IMAGES    = "${(env.ECR_LIFECYCLE_MAX_IMAGES   ?: '30').trim()}"
+    ECS_TASKDEF_KEEP_REVISIONS  = "${(env.ECS_TASKDEF_KEEP_REVISIONS ?: '15').trim()}"
   }
 
   stages {
