@@ -58,7 +58,12 @@ pipeline {
           if (!env.TRIVY_SEVERITIES) error('TRIVY_SEVERITIES not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
 
           env.GIT_SHA     = sh(script: 'git rev-parse --short=8 HEAD', returnStdout: true).trim()
-          env.SAFE_BRANCH = (env.BRANCH_NAME ?: 'detached').replaceAll('[^a-zA-Z0-9_.-]', '-')
+          // BRANCH_NAME is only set by Multibranch pipelines; fall back to git for regular Pipeline jobs
+          def detectedBranch = env.BRANCH_NAME \
+            ?: env.GIT_BRANCH?.replaceFirst('origin/', '') \
+            ?: sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+          env.SAFE_BRANCH = detectedBranch.replaceAll('[^a-zA-Z0-9_.-]', '-')
+          env.IS_MAIN     = (detectedBranch == 'main') ? 'true' : 'false'
           env.IMAGE_TAG   = "${env.SAFE_BRANCH}-${env.GIT_SHA}-${env.BUILD_NUMBER}"
 
           env.ECR_ACCOUNT_ID_EFFECTIVE = sh(
@@ -245,7 +250,7 @@ pipeline {
     }
 
     stage('Tag Latest (main only)') {
-      when { branch 'main' }
+      when { expression { return env.IS_MAIN == 'true' } }
       steps {
         sh '''
           set -euo pipefail
@@ -306,7 +311,7 @@ pipeline {
     stage('Deploy to ECS Service') {
       when {
         anyOf {
-          branch 'main'
+          expression { return env.IS_MAIN == 'true' }
           expression { return params.DEPLOY_FROM_NON_MAIN }
         }
       }
@@ -334,7 +339,7 @@ pipeline {
     stage('Post-Deploy Cleanup') {
       when {
         anyOf {
-          branch 'main'
+          expression { return env.IS_MAIN == 'true' }
           expression { return params.DEPLOY_FROM_NON_MAIN }
         }
       }
