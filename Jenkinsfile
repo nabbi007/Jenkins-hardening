@@ -48,6 +48,10 @@ pipeline {
           if (!env.ECS_SERVICE_NAME) error('ECS_SERVICE_NAME not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
           if (!env.ECS_TASK_FAMILY) error('ECS_TASK_FAMILY not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
           if (!env.TRIVY_SEVERITIES) error('TRIVY_SEVERITIES not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
+          if (!env.BACKEND_LOG_GROUP) error('BACKEND_LOG_GROUP not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
+          if (!env.FRONTEND_LOG_GROUP) error('FRONTEND_LOG_GROUP not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
+          if (!env.ECS_TASK_CPU) error('ECS_TASK_CPU not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
+          if (!env.ECS_TASK_MEMORY) error('ECS_TASK_MEMORY not set. Configure in Jenkins → Manage Jenkins → System → Global properties → Environment variables.')
 
           env.GIT_SHA     = sh(script: 'git rev-parse --short=8 HEAD', returnStdout: true).trim()
           env.SAFE_BRANCH = (env.BRANCH_NAME ?: 'detached').replaceAll('[^a-zA-Z0-9_.-]', '-')
