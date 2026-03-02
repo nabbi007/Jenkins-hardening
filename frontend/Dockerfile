@@ -8,6 +8,9 @@ RUN npm run build
 
 FROM nginx:1.27-alpine
 
+# Patch base-image CVEs (libcrypto3, libssl3, libxml2, etc.)
+RUN apk update && apk upgrade --no-cache && rm -rf /var/cache/apk/*
+
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
