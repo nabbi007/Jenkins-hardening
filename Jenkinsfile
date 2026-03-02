@@ -369,6 +369,19 @@ rev = {
 json.dump(rev, open(sys.argv[2], 'w'))
 " "$ECS_REPORT_DIR/appspec.rendered.json" "$ECS_REPORT_DIR/revision.json"
 
+          # ── Stop any active deployment before creating a new one ──
+          ACTIVE_DID=$(aws deploy list-deployments \
+            --application-name "$CODEDEPLOY_APP_NAME" \
+            --deployment-group-name "$CODEDEPLOY_DG_NAME" \
+            --include-only-statuses "InProgress" "Queued" "Created" \
+            --query 'deployments[0]' --output text 2>/dev/null || true)
+
+          if [ -n "$ACTIVE_DID" ] && [ "$ACTIVE_DID" != "None" ]; then
+            echo "⚠ Stopping active deployment $ACTIVE_DID before creating new one"
+            aws deploy stop-deployment --deployment-id "$ACTIVE_DID" || true
+            sleep 10
+          fi
+
           # ── Create CodeDeploy blue/green deployment ──
           DEPLOYMENT_ID=$(aws deploy create-deployment \
             --application-name  "$CODEDEPLOY_APP_NAME" \
