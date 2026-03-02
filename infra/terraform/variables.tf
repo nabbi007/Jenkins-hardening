@@ -303,3 +303,15 @@ variable "jenkins_associate_public_ip" {
   type        = bool
   default     = true
 }
+
+variable "enable_codedeploy" {
+  description = "Use AWS CodeDeploy blue/green deployments for ECS instead of rolling updates"
+  type        = bool
+  default     = false
+}
+
+variable "codedeploy_termination_wait" {
+  description = "Minutes to wait before terminating blue tasks after CodeDeploy traffic shift"
+  type        = number
+  default     = 5
+}

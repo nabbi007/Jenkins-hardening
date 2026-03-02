@@ -28,6 +28,7 @@ pipeline {
     TASKDEF_TEMPLATE        = 'ecs/taskdef.template.json'
     BACKEND_CONTAINER_NAME  = 'backend'
     FRONTEND_CONTAINER_NAME = 'frontend'
+    APPSPEC_TEMPLATE        = 'ecs/appspec.template.json'
 
     // Defaults — override via Jenkins → Manage Jenkins → System → Global properties if needed
     BACKEND_LOG_GROUP           = "${env.BACKEND_LOG_GROUP  ?: '/ecs/voting-app/backend'}"
@@ -36,6 +37,8 @@ pipeline {
     ECS_TASK_MEMORY             = "${(env.ECS_TASK_MEMORY            ?: '2048').trim()}"
     ECR_LIFECYCLE_MAX_IMAGES    = "${(env.ECR_LIFECYCLE_MAX_IMAGES   ?: '30').trim()}"
     ECS_TASKDEF_KEEP_REVISIONS  = "${(env.ECS_TASKDEF_KEEP_REVISIONS ?: '15').trim()}"
+    CODEDEPLOY_APP_NAME         = "${env.CODEDEPLOY_APP_NAME  ?: 'voting-app-deploy'}"
+    CODEDEPLOY_DG_NAME          = "${env.CODEDEPLOY_DG_NAME   ?: 'voting-app-dg'}"
   }
 
   stages {
@@ -193,7 +196,7 @@ pipeline {
                 --scanners vuln \
                 --severity "${SEVERITIES}" \
                 --ignore-unfixed \
-                --exit-code 0 \
+                --exit-code 1 \
                 --format json \
                 --output /work/reports/security/trivy/backend.json \
                 "${BACKEND_IMAGE_URI}"
@@ -207,7 +210,7 @@ pipeline {
                 --scanners vuln \
                 --severity "${SEVERITIES}" \
                 --ignore-unfixed \
-                --exit-code 0 \
+                --exit-code 1 \
                 --format json \
                 --output /work/reports/security/trivy/frontend.json \
                 "${FRONTEND_IMAGE_URI}"
@@ -319,19 +322,32 @@ pipeline {
         sh '''
           set -euo pipefail
 
-          aws ecs update-service \
-            --cluster "$ECS_CLUSTER_NAME" \
-            --service "$ECS_SERVICE_NAME" \
-            --task-definition "$NEW_TASK_DEF_ARN" \
-            --force-new-deployment > "$ECS_REPORT_DIR/service-update.json"
+          # ── Render AppSpec with the new task definition ARN ──
+          APPSPEC=$(sed \
+            -e "s|__TASK_DEF_ARN__|${NEW_TASK_DEF_ARN}|g" \
+            -e "s|__FRONTEND_CONTAINER_NAME__|${FRONTEND_CONTAINER_NAME}|g" \
+            "$APPSPEC_TEMPLATE")
 
-          aws ecs wait services-stable \
-            --cluster "$ECS_CLUSTER_NAME" \
-            --services "$ECS_SERVICE_NAME"
+          printf '%s\n' "$APPSPEC" > "$ECS_REPORT_DIR/appspec.rendered.json"
 
-          aws ecs describe-services \
-            --cluster "$ECS_CLUSTER_NAME" \
-            --services "$ECS_SERVICE_NAME" > "$ECS_REPORT_DIR/service-after-update.json"
+          # ── Escape the JSON for the --revision payload ──
+          APPSPEC_ESCAPED=$(python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" <<< "$APPSPEC")
+
+          # ── Create CodeDeploy blue/green deployment ──
+          DEPLOYMENT_ID=$(aws deploy create-deployment \
+            --application-name  "$CODEDEPLOY_APP_NAME" \
+            --deployment-group-name "$CODEDEPLOY_DG_NAME" \
+            --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":${APPSPEC_ESCAPED}}}" \
+            --query 'deploymentId' --output text)
+
+          printf '%s\n' "$DEPLOYMENT_ID" > "$ECS_REPORT_DIR/deployment-id.txt"
+          echo "→ CodeDeploy deployment started: $DEPLOYMENT_ID"
+
+          # ── Wait for deployment to succeed (up to 15 min) ──
+          aws deploy wait deployment-successful --deployment-id "$DEPLOYMENT_ID"
+          echo "✓ CodeDeploy deployment $DEPLOYMENT_ID succeeded"
+
+          aws deploy get-deployment --deployment-id "$DEPLOYMENT_ID" > "$ECS_REPORT_DIR/deployment-result.json"
         '''
       }
     }

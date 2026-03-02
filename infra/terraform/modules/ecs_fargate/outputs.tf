@@ -72,3 +72,20 @@ output "alb_listener_https_arn" {
   description = "HTTPS listener ARN"
   value       = var.enable_alb && var.create_https_listener ? aws_lb_listener.https[0].arn : null
 }
+
+# ── CodeDeploy outputs ──
+
+output "codedeploy_app_name" {
+  description = "CodeDeploy application name"
+  value       = var.enable_codedeploy ? aws_codedeploy_app.this[0].name : null
+}
+
+output "codedeploy_deployment_group_name" {
+  description = "CodeDeploy deployment group name"
+  value       = var.enable_codedeploy ? aws_codedeploy_deployment_group.this[0].deployment_group_name : null
+}
+
+output "green_target_group_arn" {
+  description = "Green target group ARN (CodeDeploy)"
+  value       = var.enable_alb && var.enable_codedeploy ? aws_lb_target_group.green[0].arn : null
+}

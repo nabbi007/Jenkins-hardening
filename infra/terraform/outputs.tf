@@ -96,3 +96,13 @@ output "jenkins_secrets_manager_secret_name" {
   description = "Name of the Secrets Manager secret"
   value       = var.create_jenkins_instance ? module.jenkins_ec2[0].secrets_manager_secret_name : null
 }
+
+output "codedeploy_app_name" {
+  description = "CodeDeploy application name"
+  value       = module.ecs_fargate.codedeploy_app_name
+}
+
+output "codedeploy_deployment_group_name" {
+  description = "CodeDeploy deployment group name"
+  value       = module.ecs_fargate.codedeploy_deployment_group_name
+}

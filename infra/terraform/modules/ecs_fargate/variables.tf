@@ -172,6 +172,18 @@ variable "frontend_log_group_name" {
   type        = string
 }
 
+variable "enable_codedeploy" {
+  description = "Use AWS CodeDeploy blue/green deployments instead of ECS rolling updates"
+  type        = bool
+  default     = false
+}
+
+variable "codedeploy_termination_wait" {
+  description = "Minutes to wait before terminating old (blue) tasks after traffic shift"
+  type        = number
+  default     = 5
+}
+
 variable "execution_role_arn" {
   description = "Existing execution role ARN"
   type        = string

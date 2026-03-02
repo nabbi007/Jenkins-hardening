@@ -94,6 +94,9 @@ module "ecs_fargate" {
 
   execution_role_arn = var.execution_role_arn
   task_role_arn      = var.task_role_arn
+
+  enable_codedeploy          = var.enable_codedeploy
+  codedeploy_termination_wait = var.codedeploy_termination_wait
 }
 
 module "cloudwatch_alarms" {

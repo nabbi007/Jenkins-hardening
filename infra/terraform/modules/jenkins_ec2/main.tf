@@ -96,6 +96,21 @@ data "aws_iam_policy_document" "jenkins_pipeline" {
   }
 
   statement {
+    sid    = "AllowCodeDeployOperations"
+    effect = "Allow"
+    actions = [
+      "codedeploy:CreateDeployment",
+      "codedeploy:GetDeployment",
+      "codedeploy:GetDeploymentConfig",
+      "codedeploy:GetApplicationRevision",
+      "codedeploy:RegisterApplicationRevision",
+      "codedeploy:GetDeploymentGroup",
+      "codedeploy:BatchGetDeployments"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "AllowPassEcsRoles"
     effect = "Allow"
     actions = [
