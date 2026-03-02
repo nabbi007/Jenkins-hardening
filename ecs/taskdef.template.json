@@ -27,6 +27,9 @@
           "value": "redis://localhost:6379"
         }
       ],
+      "healthCheck": {
+        "command": ["NONE"]
+      },
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
@@ -46,6 +49,9 @@
           "protocol": "tcp"
         }
       ],
+      "healthCheck": {
+        "command": ["NONE"]
+      },
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
@@ -65,6 +71,9 @@
           "protocol": "tcp"
         }
       ],
+      "healthCheck": {
+        "command": ["NONE"]
+      },
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
