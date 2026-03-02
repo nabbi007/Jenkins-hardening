@@ -105,7 +105,22 @@ data "aws_iam_policy_document" "jenkins_pipeline" {
       "codedeploy:GetApplicationRevision",
       "codedeploy:RegisterApplicationRevision",
       "codedeploy:GetDeploymentGroup",
-      "codedeploy:BatchGetDeployments"
+      "codedeploy:BatchGetDeployments",
+      "codedeploy:ListDeploymentTargets",
+      "codedeploy:GetDeploymentTarget",
+      "codedeploy:BatchGetDeploymentTargets",
+      "codedeploy:StopDeployment"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowElbDescribe"
+    effect = "Allow"
+    actions = [
+      "elasticloadbalancing:DescribeTargetHealth",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeListeners"
     ]
     resources = ["*"]
   }

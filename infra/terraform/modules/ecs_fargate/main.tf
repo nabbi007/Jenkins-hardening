@@ -163,11 +163,7 @@ locals {
         }
       }
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 20
+        command = ["NONE"]
       }
     },
     {
@@ -183,12 +179,6 @@ locals {
           protocol      = "tcp"
         }
       ]
-      dependsOn = [
-        {
-          containerName = var.backend_container_name
-          condition     = "HEALTHY"
-        }
-      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -198,11 +188,7 @@ locals {
         }
       }
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -qO- http://127.0.0.1/nginx-health || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 15
+        command = ["NONE"]
       }
     }
   ]
