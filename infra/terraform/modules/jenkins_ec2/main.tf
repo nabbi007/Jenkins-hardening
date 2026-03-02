@@ -109,7 +109,8 @@ data "aws_iam_policy_document" "jenkins_pipeline" {
       "codedeploy:ListDeploymentTargets",
       "codedeploy:GetDeploymentTarget",
       "codedeploy:BatchGetDeploymentTargets",
-      "codedeploy:StopDeployment"
+      "codedeploy:StopDeployment",
+      "codedeploy:ListDeployments"
     ]
     resources = ["*"]
   }
@@ -151,7 +152,10 @@ data "aws_iam_policy_document" "jenkins_pipeline" {
       "logs:DescribeLogGroups",
       "logs:FilterLogEvents"
     ]
-    resources = ["arn:aws:logs:${var.aws_region}:*:log-group:/ecs/${var.project_name}/*"]
+    resources = [
+      "arn:aws:logs:${var.aws_region}:*:log-group:/ecs/${var.project_name}*",
+      "arn:aws:logs:${var.aws_region}:*:log-group:/ecs/${var.project_name}*:log-stream:*"
+    ]
   }
 }
 
