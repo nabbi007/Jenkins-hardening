@@ -149,7 +149,10 @@ pipeline {
                   -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
                   -e SONAR_TOKEN="${SONAR_AUTH_TOKEN}" \
                   node:20-bookworm \
-                  bash -lc 'npm -g --silent i sonar-scanner && \
+                  bash -lc 'set -euo pipefail; \
+                    apt-get update -y >/dev/null; \
+                    apt-get install -y --no-install-recommends openjdk-17-jre-headless ca-certificates >/dev/null; \
+                    npm -g --silent i sonar-scanner >/dev/null; \
                     sonar-scanner \
                       -Dsonar.host.url="$SONAR_HOST_URL" \
                       -Dsonar.token="$SONAR_TOKEN" \
