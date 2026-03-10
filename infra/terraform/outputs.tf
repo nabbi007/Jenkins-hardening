@@ -106,3 +106,22 @@ output "codedeploy_deployment_group_name" {
   description = "CodeDeploy deployment group name"
   value       = module.ecs_fargate.codedeploy_deployment_group_name
 }
+
+output "jenkins_env" {
+  description = "Key Jenkins environment values derived from Terraform inputs/outputs"
+  value = {
+    AWS_REGION                = var.aws_region
+    BACKEND_ECR_REPO          = var.backend_ecr_repo_name
+    FRONTEND_ECR_REPO         = var.frontend_ecr_repo_name
+    ECS_CLUSTER_NAME          = module.ecs_fargate.cluster_name
+    ECS_SERVICE_NAME          = module.ecs_fargate.service_name
+    ECS_TASK_FAMILY           = module.ecs_fargate.task_family
+    BACKEND_LOG_GROUP         = module.ecs_fargate.backend_log_group_name
+    FRONTEND_LOG_GROUP        = module.ecs_fargate.frontend_log_group_name
+    ECS_TASK_CPU              = var.task_cpu
+    ECS_TASK_MEMORY           = var.task_memory
+    ECR_LIFECYCLE_MAX_IMAGES  = var.ecr_lifecycle_keep_images
+    CODEDEPLOY_APP_NAME       = module.ecs_fargate.codedeploy_app_name
+    CODEDEPLOY_DG_NAME        = module.ecs_fargate.codedeploy_deployment_group_name
+  }
+}
