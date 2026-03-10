@@ -25,7 +25,7 @@ pipeline {
     string(name: 'ECS_CLUSTER_NAME',           defaultValue: 'voting-cluster', description: 'ECS cluster name')
     string(name: 'ECS_SERVICE_NAME',           defaultValue: 'voting-app', description: 'ECS service name')
     string(name: 'ECS_TASK_FAMILY',            defaultValue: 'voting-app', description: 'ECS task definition family')
-    string(name: 'TRIVY_SEVERITIES',           defaultValue: '', description: 'Trivy severities (e.g., CRITICAL,HIGH)')
+    string(name: 'TRIVY_SEVERITIES',           defaultValue: 'CRITICAL,HIGH', description: 'Trivy severities (e.g., CRITICAL,HIGH)')
     string(name: 'BACKEND_LOG_GROUP',          defaultValue: '/ecs/voting-app/backend', description: 'Override backend log group')
     string(name: 'FRONTEND_LOG_GROUP',         defaultValue: '/ecs/voting-app/frontend', description: 'Override frontend log group')
     string(name: 'ECS_TASK_CPU',               defaultValue: '512', description: 'Task CPU units (e.g., 1024)')
