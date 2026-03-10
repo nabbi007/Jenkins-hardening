@@ -43,7 +43,7 @@ pipeline {
     ECS_CLUSTER_NAME   = "${params.ECS_CLUSTER_NAME  ?: ''}"
     ECS_SERVICE_NAME   = "${params.ECS_SERVICE_NAME  ?: ''}"
     ECS_TASK_FAMILY    = "${params.ECS_TASK_FAMILY   ?: ''}"
-    TRIVY_SEVERITIES   = "${params.TRIVY_SEVERITIES  ?: ''}"
+    TRIVY_SEVERITIES   = "${params.TRIVY_SEVERITIES  ?: 'CRITICAL,HIGH'}"
     REPORT_DIR              = 'reports/security'
     SBOM_DIR                = 'reports/sbom'
     ECS_REPORT_DIR          = 'reports/ecs'
@@ -80,7 +80,7 @@ pipeline {
           if (!env.ECS_CLUSTER_NAME) error('ECS_CLUSTER_NAME not set. Provide via build parameters.')
           if (!env.ECS_SERVICE_NAME) error('ECS_SERVICE_NAME not set. Provide via build parameters.')
           if (!env.ECS_TASK_FAMILY) error('ECS_TASK_FAMILY not set. Provide via build parameters.')
-          if (!env.TRIVY_SEVERITIES) error('TRIVY_SEVERITIES not set. Provide via build parameters.')
+          // Defaulted above; no hard requirement.
 
           env.GIT_SHA     = sh(script: 'git rev-parse --short=8 HEAD', returnStdout: true).trim()
           // BRANCH_NAME is only set by Multibranch pipelines; fall back to git for regular Pipeline jobs
